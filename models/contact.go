@@ -6,7 +6,7 @@ type Contact struct {
 	Phone    string  `json:"phone"`
 	Street   *string `json:"street"`
 	Suburb   *string `json:"suburb"`
-	Postcode *uint8  `json:"postcode"`
+	Postcode *uint   `json:"postcode"`
 	State    *string `json:"state"`
 	Country  *string `json:"country"`
 }

@@ -37,8 +37,8 @@ func main() {
 
 	err = db.AutoMigrate(&models.User{}, &models.Booking{}, &models.Client{}, &models.Contractor{}, &models.Contact{})
 
-	r := routes.Routes{DB: db.Debug()}
-	r.Setup(e)
+	apis := routes.APIRoutes{DB: db.Debug()}
+	apis.Setup(e)
 
 	v := routes.Views{}
 	v.Setup(e)

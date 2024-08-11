@@ -1,0 +1,96 @@
+{{ define "booking-view" }}
+<div class="main-content">
+  <div class="card bg-base-100 w-full shadow-xl">
+    <div class="card-body">
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Attribute</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Booking ID</td>
+              <td>{{ .ID }}</td>
+            </tr>
+            <tr>
+              <td>Created Time</td>
+              <td>{{ .CreatedAt }}</td>
+            </tr>
+            <tr>
+              <td>Start Time</td>
+              <td>{{ .StartTime }}</td>
+            </tr>
+            <tr>
+              <td>End Time</td>
+              <td>{{ .EndTime }}</td>
+            </tr>
+            <tr>
+              <td>Timezone</td>
+              <td>{{ .Timezone }}</td>
+            </tr>
+            <tr>
+              <td>Method</td>
+              <td>{{ .Method }}</td>
+            </tr>
+            <tr>
+              <td>Language</td>
+              <td>{{ .Language }}</td>
+            </tr>
+            <tr>
+              <td>Client ID</td>
+              <td>{{ .Client.ID }}</td>
+            </tr>
+            <tr>
+              <td>Client Name</td>
+              <td>{{ .Client.Name }}</td>
+            </tr>
+            <tr>
+              <td>Rate</td>
+              <td>${{ .Client.Rate }}</td>
+            </tr>
+            <tr>
+              <td>Client Email</td>
+              <td>{{ .Client.Contact.Email }}</td>
+            </tr>
+            <tr>
+              <td>Client Phone</td>
+              <td>{{ .Client.Contact.Phone }}</td>
+            </tr>
+            <tr>
+              <td>Client Location</td>
+              <td>{{ .Client.Contact.State }}</td>
+            </tr>
+            <tr>
+              <td>Contractor ID</td>
+              <td>{{ .Contractor.ID }}</td>
+            </tr>
+            <tr>
+              <td>Contractor Name</td>
+              <td>{{ .Contractor.Name }}</td>
+            </tr>
+            <tr>
+              <td>Rate</td>
+              <td>${{ .Contractor.Rate }}</td>
+            </tr>
+            <tr>
+              <td>Contractor Email</td>
+              <td>{{ .Contractor.Contact.Email }}</td>
+            </tr>
+            <tr>
+              <td>Contractor Phone</td>
+              <td>{{ .Contractor.Contact.Phone }}</td>
+            </tr>
+            <tr>
+              <td>Contractor Location</td>
+              <td>{{ .Contractor.Contact.State }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{{ end }}

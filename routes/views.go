@@ -15,4 +15,8 @@ func (r *Views) Setup(e *echo.Echo) {
 		return c.Render(http.StatusOK, "index", "")
 	})
 
+	e.GET("/admin", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "admin", "")
+	})
+
 }

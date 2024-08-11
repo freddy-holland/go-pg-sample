@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -11,6 +12,7 @@ import (
 	"gorm.io/gorm"
 
 	"fholl.net/go-pg-sample/models"
+	"fholl.net/go-pg-sample/util"
 )
 
 type Template struct {
@@ -21,7 +23,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
-type Routes struct {
+type APIRoutes struct {
 	DB *gorm.DB
 }
 
@@ -31,7 +33,7 @@ type GetByIDConfig struct {
 	template string
 }
 
-func (r *Routes) Setup(e *echo.Echo) {
+func (r *APIRoutes) Setup(e *echo.Echo) {
 
 	t := &Template{
 		templates: template.Must(template.ParseGlob("public/views/*html")),
@@ -43,7 +45,7 @@ func (r *Routes) Setup(e *echo.Echo) {
 	booking_group := e.Group("/booking")
 
 	booking_group.GET("/:id", func(c echo.Context) error {
-		return r.GetModelByID(c, GetByIDConfig{model: &models.Booking{}, preloads: []string{"Client.Contact", "Contractor.Contact"}, template: "booking"})
+		return r.GetModelByID(c, GetByIDConfig{model: &models.Booking{}, preloads: []string{"Client.Contact", "Contractor.Contact"}, template: "booking-view"})
 	})
 	booking_group.POST("/create", func(c echo.Context) error {
 		return r.CreateModel(c, &models.Booking{})
@@ -90,9 +92,56 @@ func (r *Routes) Setup(e *echo.Echo) {
 	contractor_group.DELETE("/delete/:id", func(c echo.Context) error {
 		return r.DeleteModel(c, &models.Contractor{})
 	})
+
+	e.GET("/geo", func(c echo.Context) error {
+
+		latitude := c.QueryParam("latitude")
+		longitude := c.QueryParam("longitude")
+
+		var contractors []models.Contractor = []models.Contractor{}
+
+		err := r.DB.Preload("Contact").Where("enabled = true").Find(&contractors).Error
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"message": "could not download models",
+				"error":   err,
+			})
+		}
+
+		var dmrs []struct {
+			Contractor *models.Contractor `json:"contractor"`
+			Distance   float32            `json:"distance"`
+			Duration   float32            `json:"duration"`
+		}
+
+		for _, contractor := range contractors {
+			origin := fmt.Sprintf("%s, %s, %s %s, %s", *contractor.Contact.Street, *contractor.Contact.Suburb, *contractor.Contact.State, contractor.Contact.Postcode, *contractor.Contact.Country)
+			dest := fmt.Sprintf("%s,%s", latitude, longitude)
+
+			dmr, err := util.GetDistance(dest, origin)
+			if err != nil {
+				log.Fatal("DMR returning error")
+			}
+
+			distance := dmr.Rows[0].Elements[0].Distance.Value
+			duration := dmr.Rows[0].Elements[0].Duration.Value
+
+			dmrs = append(dmrs, struct {
+				Contractor *models.Contractor `json:"contractor"`
+				Distance   float32            `json:"distance"`
+				Duration   float32            `json:"duration"`
+			}{
+				&contractor,
+				distance,
+				duration,
+			})
+		}
+
+		return c.JSON(http.StatusOK, dmrs)
+	})
 }
 
-func (r *Routes) GetModelByID(c echo.Context, cfg GetByIDConfig) error {
+func (r *APIRoutes) GetModelByID(c echo.Context, cfg GetByIDConfig) error {
 
 	strId := c.Param("id")
 	id, err := strconv.Atoi(strId)
@@ -125,7 +174,7 @@ func (r *Routes) GetModelByID(c echo.Context, cfg GetByIDConfig) error {
 
 }
 
-func (r *Routes) CreateModel(c echo.Context, model interface{}) error {
+func (r *APIRoutes) CreateModel(c echo.Context, model interface{}) error {
 
 	err := c.Bind(model)
 	if err != nil {
@@ -146,7 +195,7 @@ func (r *Routes) CreateModel(c echo.Context, model interface{}) error {
 	return c.JSON(http.StatusOK, model)
 }
 
-func (r *Routes) DeleteModel(c echo.Context, model interface{}) error {
+func (r *APIRoutes) DeleteModel(c echo.Context, model interface{}) error {
 	strId := c.Param("id")
 	id, err := strconv.Atoi(strId)
 	if err != nil {
