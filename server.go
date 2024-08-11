@@ -35,10 +35,13 @@ func main() {
 		log.Fatal("Could not load the database")
 	}
 
-	err = db.AutoMigrate(&models.Booking{}, &models.Client{}, &models.Contractor{}, &models.Contact{})
+	err = db.AutoMigrate(&models.User{}, &models.Booking{}, &models.Client{}, &models.Contractor{}, &models.Contact{})
 
 	r := routes.Routes{DB: db.Debug()}
 	r.Setup(e)
+
+	v := routes.Views{}
+	v.Setup(e)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

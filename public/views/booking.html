@@ -1,0 +1,38 @@
+{{ define "booking" }}
+
+<div class="overflow-x-auto">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Timezone</th>
+        <th>Method</th>
+        <th>Location</th>
+        <th>Language</th>
+        <th>Client</th>
+        <th>Client Rate</th>
+        <th>Contractor</th>
+        <th>Contractor Rate</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ .ID }}</td>
+        <td>{{ .StartTime }}</td>
+        <td>{{ .EndTime }}</td>
+        <td>{{ .Timezone }}</td>
+        <td>{{ .Method }}</td>
+        <td>{{ .Location }}</td>
+        <td>{{ .Language }}</td>
+        <td>{{ .Client.Name }}</td>
+        <td>${{ .Client.Rate }}</td>
+        <td>{{ .Contractor.Name }}</td>
+        <td>${{ .Contractor.Rate }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+{{ end }}
